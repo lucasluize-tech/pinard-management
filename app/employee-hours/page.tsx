@@ -26,7 +26,7 @@ const FormSchema = z.object({
   days: z.string().transform((val) => Number(val)),
 });
 
-function EmployeeInputs({ onSubmit }) {
+function EmployeeInputs({ onSubmit }: any) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
