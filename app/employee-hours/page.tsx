@@ -154,9 +154,9 @@ function EmployeeHours() {
   );
 }
 
-function EmployeeTable({ data }) {
+function EmployeeTable({ data }: any) {
   const totalCompensation = data.reduce(
-    (sum, employee) => sum + employee.totalCompensation,
+    (sum: any, employee: any) => sum + employee.totalCompensation,
     0
   );
 
@@ -174,7 +174,7 @@ function EmployeeTable({ data }) {
           </tr>
         </thead>
         <tbody>
-          {data.map((employee, index) => (
+          {data.map((employee: any, index: number) => (
             <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
               <td className='py-2 px-4 border'>{employee.name}</td>
               <td className='py-2 px-4 border'>{employee.startTime}</td>
