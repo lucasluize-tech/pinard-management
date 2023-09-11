@@ -118,9 +118,9 @@ function EmployeeInputs({ onSubmit }: any) {
 
 function EmployeeHours() {
   const [showForm, setShowForm] = React.useState(false);
-  const [tableData, setTableData] = React.useState([]);
+  const [tableData, setTableData] = React.useState([{}]);
 
-  const handleSubmit = (data) => {
+  const handleSubmit = (data: any) => {
     const { name, startTime, endTime, hourlyRate, days } = data;
     const totalHours = (Number(endTime) - Number(startTime)) * days;
     const totalCompensation = totalHours * Number(hourlyRate);
