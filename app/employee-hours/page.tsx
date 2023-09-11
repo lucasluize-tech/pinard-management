@@ -31,7 +31,7 @@ function EmployeeInputs({ onSubmit }: any) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
-      startTime: 8,
+      startTime: 0,
       endTime: 0,
       hourlyRate: 0,
       days: 1,
@@ -121,7 +121,7 @@ function EmployeeHours() {
   const [tableData, setTableData] = React.useState([{}]);
 
   const handleSubmit = (data: any) => {
-    const { name, startTime, endTime, hourlyRate, days } = data;
+    const { startTime, endTime, hourlyRate, days } = data;
     const totalHours = (Number(endTime) - Number(startTime)) * days;
     const totalCompensation = totalHours * Number(hourlyRate);
     setTableData([
@@ -187,7 +187,7 @@ function EmployeeTable({ data }: any) {
         </tbody>
       </table>
       <div className='mt-4 text-xl font-bold'>
-        Total Compensation: ${totalCompensation}
+        Total Compensation: ${totalCompensation || 0}
       </div>
     </>
   );
