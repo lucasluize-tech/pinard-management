@@ -1,7 +1,7 @@
 "use client";
 
 import * as z from "zod";
-import React from "react";
+import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { set, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -118,12 +118,13 @@ function EmployeeInputs({ onSubmit }: any) {
 
 function EmployeeHours() {
   const [showForm, setShowForm] = React.useState(false);
-  const [tableData, setTableData] = React.useState([{}]);
+  const [tableData, setTableData] = React.useState<Object[]>([]);
 
   const handleSubmit = (data: any) => {
+    console.log(data);
     const { startTime, endTime, hourlyRate, days } = data;
     const totalHours = (Number(endTime) - Number(startTime)) * days;
-    const totalCompensation = totalHours * Number(hourlyRate);
+    const totalCompensation = totalHours * Number(hourlyRate) || 0;
     setTableData([
       ...tableData,
       {
@@ -155,10 +156,17 @@ function EmployeeHours() {
 }
 
 function EmployeeTable({ data }: any) {
-  const totalCompensation = data.reduce(
-    (sum: any, employee: any) => sum + employee.totalCompensation,
-    0
-  );
+  const [totalCompensation, setTotalCompensation] = React.useState(0);
+
+  useEffect(() => {
+    console.log(data);
+    const newTotalCompensation = data.reduce(
+      (sum: number, employee: { totalCompensation: number }) =>
+        sum + employee.totalCompensation,
+      0
+    );
+    setTotalCompensation(newTotalCompensation);
+  }, [data]);
 
   return (
     <>
@@ -187,7 +195,7 @@ function EmployeeTable({ data }: any) {
         </tbody>
       </table>
       <div className='mt-4 text-xl font-bold'>
-        Total Compensation: ${totalCompensation || 0}
+        Total Compensation: $ {totalCompensation}
       </div>
     </>
   );
