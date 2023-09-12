@@ -3,7 +3,7 @@
 import * as z from "zod";
 import React, { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -31,9 +31,9 @@ function EmployeeInputs({ onSubmit }: any) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
-      startTime: 0,
-      endTime: 0,
-      hourlyRate: 0,
+      startTime: 0.0,
+      endTime: 0.0,
+      hourlyRate: 0.0,
       days: 1,
     },
   });
@@ -63,7 +63,12 @@ function EmployeeInputs({ onSubmit }: any) {
             <FormItem className='w-full max-w-lg mx-auto items-center'>
               <FormLabel>start time:</FormLabel>
               <FormControl>
-                <Input placeholder='ex: 8' type='number' {...field} />
+                <Input
+                  placeholder='ex: 8'
+                  type='number'
+                  step='0.01'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -76,7 +81,12 @@ function EmployeeInputs({ onSubmit }: any) {
             <FormItem className='w-full max-w-lg mx-auto items-center'>
               <FormLabel>end time:</FormLabel>
               <FormControl>
-                <Input placeholder='ex: 18' type='number' {...field} />
+                <Input
+                  placeholder='ex: 18'
+                  type='number'
+                  step='0.01'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -89,7 +99,12 @@ function EmployeeInputs({ onSubmit }: any) {
             <FormItem className='w-full max-w-lg mx-auto items-center'>
               <FormLabel>days:</FormLabel>
               <FormControl>
-                <Input placeholder='ex: 18' type='number' {...field} />
+                <Input
+                  placeholder='ex: 18'
+                  type='number'
+                  step='0.01'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -102,7 +117,12 @@ function EmployeeInputs({ onSubmit }: any) {
             <FormItem className='w-full max-w-lg mx-auto items-center'>
               <FormLabel>Hourly Rate:</FormLabel>
               <FormControl>
-                <Input placeholder='ex: 20' type='number' {...field} />
+                <Input
+                  placeholder='ex: 20'
+                  type='number'
+                  step='0.01'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,24 +140,43 @@ function EmployeeHours() {
   const [showForm, setShowForm] = React.useState(false);
   const [tableData, setTableData] = React.useState<Object[]>([]);
 
+  useEffect(() => {
+    const storedTableData = JSON.parse(
+      localStorage.getItem("tableData") || "[]"
+    );
+    if (storedTableData.length) {
+      setTableData(storedTableData);
+    }
+  }, []);
+
   const handleSubmit = (data: any) => {
-    console.log(data);
-    const { startTime, endTime, hourlyRate, days } = data;
+    const { name, startTime, endTime, hourlyRate, days } = data;
     const totalHours = (Number(endTime) - Number(startTime)) * days;
     const totalCompensation = totalHours * Number(hourlyRate) || 0;
-    setTableData([
+
+    const updatedTableData = [
       ...tableData,
-      {
-        ...data,
-        totalHours,
-        totalCompensation,
-      },
-    ]);
+      { ...data, totalHours, totalCompensation },
+    ];
+
+    localStorage.setItem("tableData", JSON.stringify(updatedTableData));
+    setTableData(updatedTableData);
     setShowForm(false);
+    toast({
+      title: `Employee: ${name} hours added!`,
+    });
+  };
+
+  const handleDelete = (index: number) => {
+    const updatedTableData = [...tableData];
+    updatedTableData.splice(index, 1);
+
+    localStorage.setItem("tableData", JSON.stringify(updatedTableData));
+    setTableData(updatedTableData);
   };
 
   return (
-    <div className='container mx-auto flex flex-col items-center justify-center min-h-screen py-2'>
+    <div className='container mx-auto flex flex-col items-center justify-around min-h-screen py-2'>
       <h1 className='text-6xl font-bold mb-3'>Employee Hours</h1>
 
       {!showForm && (
@@ -150,12 +189,14 @@ function EmployeeHours() {
 
       {showForm && <EmployeeInputs onSubmit={handleSubmit} />}
 
-      {tableData && <EmployeeTable data={tableData} />}
+      {tableData.length > 0 && (
+        <EmployeeTable data={tableData} onDelete={handleDelete} />
+      )}
     </div>
   );
 }
 
-function EmployeeTable({ data }: any) {
+function EmployeeTable({ data, onDelete }: { data: any; onDelete: any }) {
   const [totalCompensation, setTotalCompensation] = React.useState(0);
 
   useEffect(() => {
@@ -179,17 +220,39 @@ function EmployeeTable({ data }: any) {
             <th className='py-2 px-4 border'>Hourly Rate</th>
             <th className='py-2 px-4 border'>Total Hours</th>
             <th className='py-2 px-4 border'>Total Compensation</th>
+            <th className='py-2 px-4 border'>Delete Entry</th>
           </tr>
         </thead>
         <tbody>
           {data.map((employee: any, index: number) => (
             <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
-              <td className='py-2 px-4 border'>{employee.name}</td>
-              <td className='py-2 px-4 border'>{employee.startTime}</td>
-              <td className='py-2 px-4 border'>{employee.endTime}</td>
-              <td className='py-2 px-4 border'>{employee.hourlyRate}</td>
-              <td className='py-2 px-4 border'>{employee.totalHours}</td>
-              <td className='py-2 px-4 border'>{employee.totalCompensation}</td>
+              <td className='py-2 px-4 border'>{employee.name} </td>
+              <td className='py-2 px-4 border'>{employee.startTime} </td>
+              <td className='py-2 px-4 border'>{employee.endTime} </td>
+              <td className='py-2 px-4 border'>{employee.hourlyRate} </td>
+              <td className='py-2 px-4 border'>{employee.totalHours} </td>
+              <td className='py-2 px-4 border'>
+                {employee.totalCompensation}{" "}
+              </td>
+              <td className='py-2 px-4 border'>
+                <button
+                  onClick={() => onDelete(index)}
+                  className='text-red-600 hover:text-red-800'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='h-6 w-6'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M6 18L18 6M6 6l12 12'
+                    />
+                  </svg>
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
